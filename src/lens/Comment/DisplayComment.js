@@ -21,7 +21,7 @@ export default function DisplayComments({ pubId }) {
                 <AccordionDetails>
                     <ul>
                         {
-                            publications && publications[0].map((pub) => {
+                            publications && publications.map((pub) => {
                                 if (pub.__typename === "Comment" && pub.mainPost.id === pubId) {
                                     return (
                                         <li>{pub.metadata.content}</li>

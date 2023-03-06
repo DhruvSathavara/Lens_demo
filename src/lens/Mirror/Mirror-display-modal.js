@@ -154,7 +154,7 @@ const Collect = async ()=> {
 
                                     avatar={
                                         <img style={{ height: "70px", width: "70px", borderRadius: "50%" }}
-                                            src={pub?.profile?.picture?.original?.url}
+                                            src={pub?.mirrorOf?.profile?.picture?.original?.url}
                                             alt="new"
                                         />}
                                     action={
@@ -162,7 +162,7 @@ const Collect = async ()=> {
 
                                             <MoreVertIcon />
                                         </IconButton>}
-                                    title={pub?.profile?.handle}
+                                    title={pub?.mirrorOf.profile.handle}
                                     subheader={pub?.profile?.ownedBy?.slice(1, 10)}
                                 />                                <CardContent>
                                     <Typography variant="body2" color="text.secondary">

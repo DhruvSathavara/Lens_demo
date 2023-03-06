@@ -13,6 +13,8 @@ import { createMirror, gaslessMirror } from '../Mirror/Mirror';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { CollectItem } from '../Collect/collect';
 import ReporrtModal from '../ReportPublication/report-modal';
+import { deletePublicaton } from '../DeletePublication/delete-publication-type-data';
+
 export default function DisplayPublications({ pub }) {
     const [pid, setPid] = useState(pub?.id);
     const [comment, setComment] = useState("");
@@ -155,6 +157,24 @@ export default function DisplayPublications({ pub }) {
         }
         setLikeCount(res.items.length);
     }
+
+    const  handleDeletePublication=async(id)=>{
+        setLoading(true);
+        const dd = {
+            id: id,
+            address: profile.ownedBy, 
+            login: login
+        } 
+      const res = await deletePublicaton(dd); 
+      if(res.data.hidePublication === null){ 
+        setLoading(false);
+        handleClose();
+        alert("Post successfully deleted!"); 
+      }
+      setLoading(false);
+      setUpdate(!update);
+      handleClose();
+    } 
     return (
         <>
             <Box >
@@ -194,7 +214,9 @@ export default function DisplayPublications({ pub }) {
                                         'aria-labelledby': 'basic-button',
                                     }}
                                 >
-                                   <ReporrtModal pubId = {pub.id}/>
+                                   <ReporrtModal pubId = {pub.id}
+                                   data = {pub}
+                                   />
                                 </Menu>
                                 <CardContent>
                                     <Typography variant="body2" color="text.secondary">

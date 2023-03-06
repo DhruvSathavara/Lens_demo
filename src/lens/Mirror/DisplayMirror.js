@@ -13,7 +13,7 @@ export default function DisplayMirror() {
             <center><h3>Mirrored Items</h3></center>
             <div style={{ display: "flex" }} className='row'>
                 {
-                    publications && publications[0].map((pub) => {
+                    publications && publications.map((pub) => {
                         // console.log(pub);
                         if (pub.__typename === "Mirror" && pub.profile.id === profileId) {
                             return (

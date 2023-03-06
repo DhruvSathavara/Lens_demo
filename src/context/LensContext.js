@@ -19,6 +19,9 @@ export const LensAuthContextProvider = (props) => {
     const [profile, setProfile] = useState("");
     const [updatePro, setUpdatePro] = useState(false)
     const [publications, setPublications] = useState()
+    console.log(publications);
+    const [randomPublications, setRandomPublications] = useState()
+    // console.log(randomPublications);
     const [collectedPubs, setCollectedPubs] = useState()
 
     // console.log(publications);
@@ -29,20 +32,30 @@ export const LensAuthContextProvider = (props) => {
         async function getProfile() {
             if (id !== null) {
                 // console.log(id, 'id in useefect..');
+                let pubArry = [];
                 const user = await profileById(id);
                 const result = await publicationsByProfilId(id)
-                setPublications(result);
+                
+                for(let  i = 0; i< result[0].length; i++){
+                    pubArry.push(result[0][i]);
+                }
+                let responce = await getPublicationByLatest();
+                // console.log(responce);
+                // console.log(responce.data.explorePublications.items);
+                for(let  i = 0; i< responce.data.explorePublications.items.length; i++){
+                    pubArry.push(responce.data.explorePublications.items[i]);
+                }
                 const res = await collectedPubByAddress(id);
                 setCollectedPubs(res);
-                console.log(result, 'post result');
-                console.log(res, 'collected publication');
 
                 setProfile(user);
+                setPublications(pubArry)
             }
 
         };
         getProfile();
-        getPosts();
+       
+
     }, [userAdd, update, updatePro]);
 
     async function getPosts() {

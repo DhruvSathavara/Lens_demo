@@ -1,17 +1,19 @@
-import { Button, Dialog, DialogActions, DialogContent, MenuItem, FormControl, InputLabel, Select, OutlinedInput, Divider } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, MenuItem, FormControl, InputLabel, Select, OutlinedInput, Divider, IconButton } from '@mui/material';
 import React, { useState } from 'react';
 import FlagIcon from '@mui/icons-material/Flag';
 import { reportPublication } from './report-publication';
 import { LensAuthContext } from '../../context/LensContext';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { deletePublicaton } from '../DeletePublication/delete-publication-type-data';
 
 
-export default function ReporrtModal({ pubId }) {
+export default function ReporrtModal({ pubId,data }) {
     const [open, setOpen] = React.useState(false);
     const [type, setType] = React.useState();
     const [reason, setReason] = React.useState();
     const [note, setNote] = useState('');
     const lensAuthContext = React.useContext(LensAuthContext);
-    const { profile, login } = lensAuthContext;
+    const { profile, login,update,setUpdate } = lensAuthContext;
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -38,6 +40,20 @@ export default function ReporrtModal({ pubId }) {
         setNote('')
 
     }
+    const  handleDeletePublication=async(id)=>{
+        const dd = {
+            id: id,
+            address: profile.ownedBy, 
+            login: login
+        } 
+      const res = await deletePublicaton(dd); 
+      if(res.data.hidePublication === null){ 
+        handleClose();
+        alert("Post successfully deleted!"); 
+      }
+      setUpdate(!update);
+      handleClose();
+    } 
 
     const reportType = [
         {
@@ -92,6 +108,7 @@ export default function ReporrtModal({ pubId }) {
         }
     ];
     return (
+        <>
         <MenuItem aria-label="share">
             <div>
                 <FlagIcon onClick={handleClickOpen} />Report
@@ -191,5 +208,11 @@ export default function ReporrtModal({ pubId }) {
                 </Dialog>
             </div>
         </MenuItem>
+        <MenuItem>
+        {
+                    profile?.id === data?.profile?.id  && <MenuItem onClick={()=>handleDeletePublication(data.id)}><IconButton><DeleteIcon style={{ fontSize: "18px" }} /></IconButton><small>Delete</small></MenuItem>
+                }
+        </MenuItem>
+        </>
     )
 }
