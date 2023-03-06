@@ -6,6 +6,7 @@ import { gql } from '@apollo/client';
 import { profileByAddress } from '../lens/profile/get-profile';
 import { profileById } from './query';
 import { collectedPubByAddress, publicationsByProfilId } from '../lens/getPost/get-post';
+import { getPublicationByLatest } from '../lens/ExplorePublication/explorePublication';
 
 
 export const LensAuthContext = createContext(undefined);
@@ -41,7 +42,19 @@ export const LensAuthContextProvider = (props) => {
 
         };
         getProfile();
+        getPosts();
     }, [userAdd, update, updatePro]);
+
+    async function getPosts() {
+        const data = await getPublicationByLatest();   
+       const latestPosts= data.data && data.data.explorePublications.items.map((e) => {  
+          // array.push(e);
+          console.log(e,'explore');
+          return e;
+        })
+        // setUserPosts(latestPosts);
+      }
+
 
     const REFRESH_AUTHENTICATION = `
     mutation($request: RefreshRequest!) { 

@@ -10,6 +10,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '@mui/material';
 import Profile from './lens/profile/ProfileModal';
 import DisplayPublications from './lens/getPost/DisplayPost';
+import ReportModal from './lens/ReportPublication/report-modal';
+import ReporrtModal from './lens/ReportPublication/report-modal';
 
 function App() {
 
@@ -45,6 +47,7 @@ function App() {
         }<br /><br />
         <UploadModal />
         {/* <ProfileCreate /> */}
+       
       </div>
       <div>
       

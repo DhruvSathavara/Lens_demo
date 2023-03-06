@@ -6,12 +6,13 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { LensAuthContext } from '../../context/LensContext'
 import { addReaction, getReactions, removeReaction } from '../Reaction/AddReaction/addReaction';
 import { commentGasless, DoComment } from '../Comment/doComment';
-import { Button, CardContent, Dialog, DialogActions, DialogContent, TextField, Card, CardHeader, CardActions, IconButton, Typography, Grid, Box, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Button, CardContent, Dialog, DialogActions, DialogContent, TextField, Card, CardHeader, CardActions, IconButton, Typography, Grid, Box, Accordion, AccordionSummary, AccordionDetails, Menu, MenuItem } from '@mui/material';
 import DisplayComments from '../Comment/DisplayComment';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { createMirror, gaslessMirror } from '../Mirror/Mirror';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { CollectItem } from '../Collect/collect';
+import ReporrtModal from '../ReportPublication/report-modal';
 export default function DisplayPublications({ pub }) {
     const [pid, setPid] = useState(pub?.id);
     const [comment, setComment] = useState("");
@@ -19,11 +20,20 @@ export default function DisplayPublications({ pub }) {
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [likeUp, setLikeUp] = useState(0);
+    const [anchorEl, setAnchorEl] = React.useState(null);
     const lensAuthContext = React.useContext(LensAuthContext);
     const { profile, login, update, setUpdate } = lensAuthContext;
     useEffect(() => {
         getReact();
     }, [pid, update])
+
+    const oppen = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleCllose = () => {
+        setAnchorEl(null);
+    };
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -32,31 +42,31 @@ export default function DisplayPublications({ pub }) {
         setOpen(false);
     };
 
-const Mirror = async () => {
-    const profileId = window.localStorage.getItem("profileId");
-    if (profileId === undefined) {
-        console.log('Please Login First!');
-        return;
-    }
-    setLoading(true);
+    const Mirror = async () => {
+        const profileId = window.localStorage.getItem("profileId");
+        if (profileId === undefined) {
+            console.log('Please Login First!');
+            return;
+        }
+        setLoading(true);
 
-    const mirrorData = {
-        login: login,
-        proId: profileId,
-        pubId: pub.id
-    }
-    let res;
-    if (profile?.dispatcher?.canUseRelay) {
-        res = await gaslessMirror(mirrorData);
-      } else {
-        res = await createMirror(mirrorData);
-      }   
-    if (res) {
-        console.log(res, 'cmnt response');
-    }
-    setUpdate(!update);
+        const mirrorData = {
+            login: login,
+            proId: profileId,
+            pubId: pub.id
+        }
+        let res;
+        if (profile?.dispatcher?.canUseRelay) {
+            res = await gaslessMirror(mirrorData);
+        } else {
+            res = await createMirror(mirrorData);
+        }
+        if (res) {
+            console.log(res, 'cmnt response');
+        }
+        setUpdate(!update);
 
-}
+    }
     const commentUpload = async () => {
         const profileId = window.localStorage.getItem("profileId");
         if (comment.length !== 0) {
@@ -76,21 +86,21 @@ const Mirror = async () => {
             }
             console.log(commentData, 'cmt data');
             let res;
-            if(profile?.dispatcher?.canUseRelay) {
+            if (profile?.dispatcher?.canUseRelay) {
                 console.log('gasless');
                 res = await commentGasless(commentData);
                 setUpdate(!update)
                 handleClose();
-            }else{
+            } else {
                 res = await DoComment(commentData)
                 setUpdate(!update)
                 handleClose();
             }
-            
+
         }
     }
 
-    const Collect = async ()=> {
+    const Collect = async () => {
         const profileId = window.localStorage.getItem("profileId");
 
         const collectData = {
@@ -101,8 +111,8 @@ const Mirror = async () => {
         }
         const res = await CollectItem(collectData);
         setUpdate(!update);
-        if(res){
-            console.log(res,'res from collect mod');
+        if (res) {
+            console.log(res, 'res from collect mod');
         }
     }
 
@@ -134,7 +144,7 @@ const Mirror = async () => {
     }
     const getReact = async () => {
         const res = await getReactions(pid);
-        
+
         if (profile) {
             const like = res.items && res.items.filter((e) => e?.profile.id === profile.id);
             if (like.length === 0) {
@@ -160,13 +170,33 @@ const Mirror = async () => {
                                             alt="new"
                                         />}
                                     action={
-                                        <IconButton aria-label="settings">
+                                        <IconButton aria-label="settings"
+                                            id="basic-button"
+                                            aria-controls={oppen ? 'basic-menu' : undefined}
+                                            aria-haspopup="true"
+                                            aria-expanded={oppen ? 'true' : undefined}
+                                            onClick={handleClick}
+                                        >
 
                                             <MoreVertIcon />
-                                        </IconButton>}
+                                        </IconButton>
+
+                                    }
                                     title={pub?.profile?.handle}
                                     subheader={pub?.profile?.ownedBy?.slice(1, 10)}
-                                />                                <CardContent>
+                                />
+                                <Menu
+                                    id="basic-menu"
+                                    anchorEl={anchorEl}
+                                    open={oppen}
+                                    onClose={handleCllose}
+                                    MenuListProps={{
+                                        'aria-labelledby': 'basic-button',
+                                    }}
+                                >
+                                   <ReporrtModal pubId = {pub.id}/>
+                                </Menu>
+                                <CardContent>
                                     <Typography variant="body2" color="text.secondary">
                                         <h2>{pub?.metadata?.content}</h2>
                                     </Typography>
@@ -184,8 +214,8 @@ const Mirror = async () => {
                                     <IconButton aria-label="share">
                                         <div>
                                             <IconButton onClick={handleClickOpen}>
-                                            {
-                                            likeUp === 0 ? <ChatIcon /> : <ChatIcon />}{pub?.stats?.totalAmountOfComments}
+                                                {
+                                                    likeUp === 0 ? <ChatIcon /> : <ChatIcon />}{pub?.stats?.totalAmountOfComments}
                                             </IconButton>
                                             <Dialog open={open} onClose={handleClose}>
                                                 <DialogContent>
@@ -208,15 +238,15 @@ const Mirror = async () => {
                                         </div>
                                     </IconButton>
                                     <IconButton onClick={Mirror}>
-                                    {likeUp === 0 ? <SwapHorizIcon /> : <SwapHorizIcon />}{pub?.stats?.totalAmountOfMirrors}
+                                        {likeUp === 0 ? <SwapHorizIcon /> : <SwapHorizIcon />}{pub?.stats?.totalAmountOfMirrors}
                                     </IconButton>
 
                                     <IconButton onClick={Collect}>
-                                    {likeUp === 0 ? <AddCircleOutlineIcon /> : <AddCircleOutlineIcon />}{pub?.stats?.totalAmountOfCollects}
+                                        {likeUp === 0 ? <AddCircleOutlineIcon /> : <AddCircleOutlineIcon />}{pub?.stats?.totalAmountOfCollects}
                                     </IconButton>
 
                                 </CardActions>
-                                <DisplayComments pubId={pub.id}/>
+                                <DisplayComments pubId={pub.id} />
                             </Card>
                         </Grid>
                     </div>
